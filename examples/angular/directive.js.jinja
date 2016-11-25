@@ -1,0 +1,12 @@
+angular.module('{{constants.module}}').
+  directive('{{name}}', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/{{constants.module}}/src/templates/{{name}}',
+      controller: '{{name|capitalize}}Controller',
+      controllerAs: '{{name}}Ctrl',
+      bindToController: true,
+      scope: {},
+      link: function(scope, element, attrs) {}
+    }
+});

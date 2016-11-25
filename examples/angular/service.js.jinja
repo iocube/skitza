@@ -1,0 +1,15 @@
+(function() {
+
+  function {{name}}Service() {
+      function f() {}
+
+      return {
+        f: f
+      }
+  }
+
+  angular
+    .module('{{constants.module}}')
+    .factory('{{name}}Service', {{name}}Service);
+
+})();

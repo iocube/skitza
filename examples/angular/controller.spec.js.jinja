@@ -1,0 +1,19 @@
+describe('{{name}}Controller', function() {
+    var $scope, $controller, ctrl;
+
+    beforeEach(function() {
+        module('{{constants.module}}')
+    });
+
+    beforeEach(inject(function(_$controller_, $rootScope) {
+        $controller = _$controller_;
+        $scope = $rootScope.$new();
+        ctrl = $controller('{{name}}Controller as {{name}}Ctrl', {$scope: scope});
+    }));
+
+    describe('method', function() {
+        it('should ', function() {
+
+        });
+    });
+});
