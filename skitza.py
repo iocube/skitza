@@ -8,6 +8,9 @@ f = open('skitza.json', 'r')
 config = json.load(f)
 f.close()
 
+SKITZA_CONSTANTS = {
+    'cwd': os.getcwd()
+}
 
 @click.group()
 def cli():
@@ -18,6 +21,7 @@ def command(com):
     def inner(*args, **kwargs):
         # kwargs contain arguments that were passed to the command
         kwargs['constants'] = config['constants']
+        kwargs['skitza'] = SKITZA_CONSTANTS
 
         for template in com['templates']:
             if 'directory' in template:

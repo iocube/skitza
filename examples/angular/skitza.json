@@ -27,7 +27,7 @@
       ],
       "templates": [
         {
-          "directory": "/home/vova/src/skitza/examples/angular/state/{{name}}"
+          "directory": "{{skitza.cwd}}/state/{{name}}"
         },
         {
           "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
