@@ -9,7 +9,8 @@ config = json.load(f)
 f.close()
 
 SKITZA_CONSTANTS = {
-    'cwd': os.getcwd()
+    'cwd': os.getcwd(),
+    'env': os.environ
 }
 
 @click.group()

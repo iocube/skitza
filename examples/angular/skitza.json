@@ -31,7 +31,7 @@
         },
         {
           "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
-          "destination": "/home/vova/src/skitza/examples/angular/state/{{name}}/{{name}}Controller.js"
+          "destination": "{{skitza.env.PWD}}/state/{{name}}/{{name}}Controller.js"
         },
         {
           "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
