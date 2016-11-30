@@ -1,6 +1,8 @@
+import os
+import json
 import click
 import jinja2
-import json
+
 
 f = open('skitza.json', 'r')
 config = json.load(f)
@@ -12,30 +14,31 @@ def cli():
     pass
 
 
-def command(template):
+def command(com):
     def inner(*args, **kwargs):
+        # kwargs contain arguments that were passed to the command
         kwargs['constants'] = config['constants']
-        write(template['source'], template['destination'], kwargs)
 
-        # generate child templates
-        for innner_template in template['template']:
-            write(innner_template['source'], innner_template['destination'], kwargs)
+        for template in com['templates']:
+            if 'directory' in template:
+                create_directory(template['directory'], kwargs)
+            else:
+                write(template['source'], template['destination'], kwargs)
 
     return inner
 
 
 def register_commands():
     commands = []
-    for idx, template in enumerate(config['template']):
-
-        commands.append(command(template))
-        for arg in template['arguments']:
+    for idx, com in enumerate(config['commands']):
+        commands.append(command(com)) # commands stores `command` functions
+        for arg in com['arguments']:
             commands[idx] = click.option('--{option}'.format(option=arg))(
                 commands[idx]
             )
 
         cli.add_command(
-            click.command(name=template['command'])(
+            click.command(name=com['command'])(
                 commands[idx]
             )
         )
@@ -56,6 +59,12 @@ def write(source, destination, context):
         loader=jinja2.FileSystemLoader(template_dir)
     ).get_template(file_name_template).stream(**context).dump(destination_template)
 
+
+def create_directory(path, options):
+    rendered_path = jinja2.Template(path).render(options)
+
+    if not os.path.exists(rendered_path):
+        os.makedirs(rendered_path)
 
 if __name__ == '__main__':
     register_commands()

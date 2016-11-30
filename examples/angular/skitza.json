@@ -2,30 +2,43 @@
   "constants": {
     "module": "skitzaApp"
   },
-  "template": [
+  "commands": [
     {
       "command": "controller",
-      "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
-      "destination": "/home/vova/src/skitza/examples/angular/{{name}}Controller.js",
-      "arguments": ["name", "description"],
-      "template": [
+      "arguments": [
+        "name",
+        "description"
+      ],
+      "templates": [
         {
-          "source": "/home/vova/src/skitza/examples/angular/controller.spec.js.jinja",
+          "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
+          "destination": "/home/vova/src/skitza/examples/angular/{{name}}Controller.js"
+        },
+        {
+          "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
           "destination": "/home/vova/src/skitza/examples/angular/{{name}}ControllerSpec.js"
         }
       ]
     },
     {
-      "command": "directive",
-      "source": "/home/vova/src/skitza/examples/angular/directive.js.jinja",
-      "destination": "/home/vova/src/skitza/examples/angular/{{name}}Directive.js",
-      "arguments": ["name"],
-      "template": [
+      "command": "state",
+      "arguments": [
+        "name"
+      ],
+      "templates": [
         {
-          "source": "/home/vova/src/skitza/examples/angular/directive.spec.js.jinja",
-          "destination": "/home/vova/src/skitza/examples/angular/{{name}}DirectiveSpec.js"
+          "directory": "/home/vova/src/skitza/examples/angular/state/{{name}}"
+        },
+        {
+          "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
+          "destination": "/home/vova/src/skitza/examples/angular/state/{{name}}/{{name}}Controller.js"
+        },
+        {
+          "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
+          "destination": "/home/vova/src/skitza/examples/angular/state/{{name}}/{{name}}ControllerSpec.js"
         }
       ]
     }
   ]
 }
+
