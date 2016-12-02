@@ -5,6 +5,8 @@
   "commands": [
     {
       "command": "controller",
+      "help": "Generate new controller from template",
+      "short_help": "new controller",
       "arguments": [
         "name",
         "description"

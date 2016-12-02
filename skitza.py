@@ -43,8 +43,11 @@ def register_commands(config):
                 commands[idx]
             )
 
+        help = com.get('help', '')
+        short_help = com.get('short_help', '')
+
         cli.add_command(
-            click.command(name=com['command'])(
+            click.command(name=com['command'], help=help, short_help=short_help)(
                 commands[idx]
             )
         )
