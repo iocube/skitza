@@ -56,14 +56,18 @@ def write(source, destination, context):
     file_name_template = jinja2.Template(splitted[len(splitted)-1]).render(context)
     destination_template = jinja2.Template(destination).render(context)
 
+    if is_url(source):
+        content = download_file(source)
+        jinja2.Template(content).stream(**context).dump(destination_template)
+    else:
+        jinja2.Environment(
+            loader=jinja2.FileSystemLoader(template_dir)
+        ).get_template(file_name_template).stream(**context).dump(destination_template)
+
     click.echo('{template}: {destination}'.format(
         template=file_name_template,
         destination=destination_template)
     )
-
-    jinja2.Environment(
-        loader=jinja2.FileSystemLoader(template_dir)
-    ).get_template(file_name_template).stream(**context).dump(destination_template)
 
 
 def create_directory(path, options):
