@@ -39,7 +39,7 @@ def register_commands(config):
     for idx, com in enumerate(config['commands']):
         commands.append(command(config, com)) # commands stores `command` functions
         for arg in com['arguments']:
-            commands[idx] = click.option('--{option}'.format(option=arg))(
+            commands[idx] = click.option('--{option}'.format(option=arg['name']), help=arg['help'])(
                 commands[idx]
             )
 

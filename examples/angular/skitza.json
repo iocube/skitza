@@ -8,8 +8,8 @@
       "help": "Generate new controller from template",
       "short_help": "new controller",
       "arguments": [
-        "name",
-        "description"
+        {"name": "name", "help": "controller name"},
+        {"name": "description", "help": "controller description"}
       ],
       "templates": [
         {
@@ -25,7 +25,7 @@
     {
       "command": "state",
       "arguments": [
-        "name"
+        {"name": "name", "help": "state name"}
       ],
       "templates": [
         {
