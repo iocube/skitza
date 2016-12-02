@@ -3,6 +3,7 @@ import json
 import click
 import jinja2
 import sys
+import urllib2
 
 
 SKITZA_CONSTANTS = {
@@ -86,6 +87,62 @@ def get_value_from_option(opt):
     else:
         return splitted[0], splitted[1]
 
+
+def download_file(url):
+    try:
+        request = urllib2.urlopen(url)
+    except urllib2.URLError as error:
+        sys.exit('ERROR: Failed to download `{url}`\nReason: {reason}'.format(url=url, reason=error.reason))
+
+    return request.read()
+
+
+def convert_str_to_json(data):
+    try:
+        jsonfied = json.loads(data)
+    except ValueError as error:
+        sys.exit('ERROR: Could not parse `{path}` config file. Reason: {reason}'.format(
+            path=config_path,
+            reason=error.message
+        ))
+
+    return jsonfied
+
+
+def is_url(path):
+    return path.startswith('http://') or path.startswith('https://')
+
+
+def load_config_from_path(path):
+    try:
+        f = open(path, 'r')
+    except IOError as error:
+        if path == SKITZA_DEFAULT_CONFIG:
+            sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
+                     '[OPTIONS]\n\nOptions:\n  --config   Path or URL to skitza *.json config file')
+        else:
+            sys.exit('ERROR: Could not read `{path}` config file. Reason: {reason}'.format(
+                path=error.filename,
+                reason=error.strerror
+            ))
+    try:
+        content_as_json = json.load(f)
+    except ValueError as error:
+        sys.exit('ERROR: Could not parse `{path}` config file. Reason: {reason}'.format(
+            path=path,
+            reason=error.message
+        ))
+    finally:
+        f.close()
+
+    return content_as_json
+
+
+def load_config_from_url(url):
+    content = download_file(url)
+    return convert_str_to_json(content)
+
+
 if __name__ == '__main__':
     config_opt = get_option_from_argv(sys.argv, '--config=')
 
@@ -98,26 +155,10 @@ if __name__ == '__main__':
         # fall back to default config name that may reside in current directory
         config_path = SKITZA_DEFAULT_CONFIG
 
-    try:
-        f = open(config_path, 'r')
-    except IOError as error:
-        if config_path == SKITZA_DEFAULT_CONFIG:
-            sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
-                     '[OPTIONS]\n\nOptions:\n  --config   Path to skitza *.json config file')
-        else:
-            sys.exit('ERROR: Could not read `{path}` config file. Reason: {reason}'.format(
-                path=error.filename,
-                reason=error.strerror
-            ))
-    try:
-        config_json = json.load(f)
-    except ValueError as error:
-        sys.exit('ERROR: Could not parse `{path}` config file. Reason: {reason}'.format(
-            path=config_path,
-            reason=error.message
-        ))
-    finally:
-        f.close()
+    if is_url(config_path):
+        config_json = load_config_from_url(config_path)
+    else:
+        config_json = load_config_from_path(config_path)
 
     register_commands(config_json)
     cli()
