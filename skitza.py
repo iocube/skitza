@@ -5,6 +5,8 @@ import jinja2
 import sys
 import urllib2
 
+import filters
+
 
 SKITZA_CONSTANTS = {
     'cwd': os.getcwd(),
@@ -56,16 +58,18 @@ def register_commands(config):
 def write(source, destination, context):
     splitted = source.split('/')
     template_dir = '/'.join(splitted[0:-1])
-    file_name_template = jinja2.Template(splitted[len(splitted)-1]).render(context)
-    destination_template = jinja2.Template(destination).render(context)
+
+    jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+    jinja_env.filters.update(filters.filters)
+
+    file_name_template = jinja_env.from_string(splitted[len(splitted)-1]).render(context)
+    destination_template = jinja_env.from_string(destination).render(context)
 
     if is_url(source):
         content = download_file(source)
-        jinja2.Template(content).stream(**context).dump(destination_template)
+        jinja_env.from_string(content).stream(**context).dump(destination_template)
     else:
-        jinja2.Environment(
-            loader=jinja2.FileSystemLoader(template_dir)
-        ).get_template(file_name_template).stream(**context).dump(destination_template)
+        jinja_env.get_template(file_name_template).stream(**context).dump(destination_template)
 
     click.echo('{template}: {destination}'.format(
         template=file_name_template,

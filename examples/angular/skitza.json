@@ -14,7 +14,7 @@
       "templates": [
         {
           "source": "https://gist.githubusercontent.com/iocube/7dac3a14d026398dcf918debf12db082/raw/8a681de5fad84015b068d07c8a8cc878d4746028/controller.js.jinja",
-          "destination": "/home/vova/src/skitza/examples/angular/{{name}}ControllerCode.js"
+          "destination": "/home/vova/src/skitza/examples/angular/{{name|first_upper}}ControllerCode.js"
         },
         {
           "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
