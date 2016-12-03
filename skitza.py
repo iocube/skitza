@@ -5,6 +5,7 @@ import jinja2
 import sys
 import urllib2
 import yaml
+import jsonschema
 
 import filters
 
@@ -118,6 +119,8 @@ def convert_str_to_json(data):
             reason=error.message
         ))
 
+    validate(jsonfied)
+
     return jsonfied
 
 
@@ -129,6 +132,8 @@ def convert_str_to_yaml(data):
             path=config_path,
             reason=error.message
         ))
+
+    validate(yamlfied)
 
     return yamlfied
 
@@ -157,6 +162,8 @@ def load_config_from_json(path):
         ))
     finally:
         f.close()
+
+    validate(content_as_json)
 
     return content_as_json
 
@@ -201,7 +208,26 @@ def load_config_from_yaml(path):
     finally:
         f.close()
 
+    validate(content_as_yaml)
+
     return content_as_yaml
+
+
+def load_schema():
+    f = open('schema.json', 'r')
+    try:
+        schema = json.load(f)
+    except ValueError as error:
+        sys.exit('ERROR: Could not parse schema.json. Reason: {reason}'.format(
+            reason=error.message
+        ))
+    finally:
+        f.close()
+
+    return schema
+
+def validate(content):
+    return jsonschema.validate(content, load_schema())
 
 if __name__ == '__main__':
     config_opt = get_option_from_argv(sys.argv, '--config=')
