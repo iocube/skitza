@@ -4,6 +4,7 @@ import click
 import jinja2
 import sys
 import urllib2
+import yaml
 
 import filters
 
@@ -13,8 +14,8 @@ SKITZA_CONSTANTS = {
     'env': os.environ
 }
 
-SKITZA_DEFAULT_CONFIG = 'skitza.json'
-
+SKITZA_DEFAULT_CONFIG_JSON = 'skitza.json'
+SKITZA_DEFAULT_CONFIG_YAML = 'skitza.yaml'
 
 @click.group()
 def cli():
@@ -120,17 +121,28 @@ def convert_str_to_json(data):
     return jsonfied
 
 
+def convert_str_to_yaml(data):
+    try:
+        yamlfied = yaml.load(data)
+    except ValueError as error:
+        sys.exit('ERROR: Could not parse `{path}` config file. Reason: {reason}'.format(
+            path=config_path,
+            reason=error.message
+        ))
+
+    return yamlfied
+
 def is_url(path):
-    return path.startswith('http://') or path.startswith('https://')
+    return path and (path.startswith('http://') or path.startswith('https://'))
 
 
-def load_config_from_path(path):
+def load_config_from_json(path):
     try:
         f = open(path, 'r')
     except IOError as error:
-        if path == SKITZA_DEFAULT_CONFIG:
+        if path == SKITZA_DEFAULT_CONFIG_JSON:
             sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
-                     '[OPTIONS]\n\nOptions:\n  --config   Path or URL to skitza *.json config file')
+                     '[OPTIONS]\n\nOptions:\n  --config   Path or URL to skitza *.json or *.yaml config file')
         else:
             sys.exit('ERROR: Could not read `{path}` config file. Reason: {reason}'.format(
                 path=error.filename,
@@ -151,25 +163,71 @@ def load_config_from_path(path):
 
 def load_config_from_url(url):
     content = download_file(url)
-    return convert_str_to_json(content)
 
+    if is_yaml(url):
+        return convert_str_to_yaml(content)
+    else:
+        return convert_str_to_json(content)
+
+
+def is_yaml(path):
+    return path.endswith('.yaml')
+
+
+def is_json(path):
+    return path.endswith('.json')
+
+
+def load_config_from_yaml(path):
+    try:
+        f = open(path, 'r')
+    except IOError as error:
+        if path == SKITZA_DEFAULT_CONFIG_YAML:
+            sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
+                     '[OPTIONS]\n\nOptions:\n  --config   Path or URL to skitza *.json or *.yaml config file')
+        else:
+            sys.exit('ERROR: Could not read `{path}` config file. Reason: {reason}'.format(
+                path=error.filename,
+                reason=error.strerror
+            ))
+
+    try:
+        content_as_yaml = yaml.load(f)
+    except ValueError as error:
+        sys.exit('ERROR: Could not parse `{path}` config file. Reason: {reason}'.format(
+            path=path,
+            reason=error.message
+        ))
+    finally:
+        f.close()
+
+    return content_as_yaml
 
 if __name__ == '__main__':
     config_opt = get_option_from_argv(sys.argv, '--config=')
 
+    config_path = None
     if config_opt:
         # remove config path from sys.argv so click module won't process it.
         sys.argv.remove(config_opt)
         (option_name, option_value) = get_value_from_option(config_opt)
         config_path = option_value
-    else:
-        # fall back to default config name that may reside in current directory
-        config_path = SKITZA_DEFAULT_CONFIG
 
-    if is_url(config_path):
-        config_json = load_config_from_url(config_path)
+    if config_path:
+        if is_url(config_path):
+            config_json = load_config_from_url(config_path)
+        elif is_json(config_path):
+            config_json = load_config_from_json(config_path)
+        elif is_yaml(config_path):
+            config_json = load_config_from_yaml(config_path)
     else:
-        config_json = load_config_from_path(config_path)
+        if os.path.exists(SKITZA_DEFAULT_CONFIG_JSON):
+            config_json = load_config_from_json(SKITZA_DEFAULT_CONFIG_JSON)
+        elif os.path.exists(SKITZA_DEFAULT_CONFIG_YAML):
+            config_json = load_config_from_yaml(SKITZA_DEFAULT_CONFIG_YAML)
+        else:
+            sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
+                     '[OPTIONS]\n\nOptions:\n  --config   Path or URL to skitza *.json or *.yaml config file')
 
     register_commands(config_json)
     cli()
