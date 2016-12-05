@@ -3,7 +3,6 @@ import json
 import click
 import jinja2
 import sys
-import urllib2
 import yaml
 import jsonschema
 
@@ -67,11 +66,7 @@ def write(source, destination, context):
     file_name_template = jinja_env.from_string(splitted[len(splitted)-1]).render(context)
     destination_template = jinja_env.from_string(destination).render(context)
 
-    if is_url(source):
-        content = download_file(source)
-        jinja_env.from_string(content).stream(**context).dump(destination_template)
-    else:
-        jinja_env.get_template(file_name_template).stream(**context).dump(destination_template)
+    jinja_env.get_template(file_name_template).stream(**context).dump(destination_template)
 
     click.echo('{template}: {destination}'.format(
         template=file_name_template,
@@ -101,15 +96,6 @@ def get_value_from_option(opt):
         return splitted[0], splitted[1]
 
 
-def download_file(url):
-    try:
-        request = urllib2.urlopen(url)
-    except urllib2.URLError as error:
-        sys.exit('ERROR: Failed to download `{url}`\nReason: {reason}'.format(url=url, reason=error.reason))
-
-    return request.read()
-
-
 def convert_str_to_json(data):
     try:
         jsonfied = json.loads(data)
@@ -137,17 +123,13 @@ def convert_str_to_yaml(data):
 
     return yamlfied
 
-def is_url(path):
-    return path and (path.startswith('http://') or path.startswith('https://'))
-
-
 def load_config_from_json(path):
     try:
         f = open(path, 'r')
     except IOError as error:
         if path == SKITZA_DEFAULT_CONFIG_JSON:
             sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
-                     '[OPTIONS]\n\nOptions:\n  --config   Path or URL to skitza *.json or *.yaml config file')
+                     '[OPTIONS]\n\nOptions:\n  --config   Path to skitza *.json or *.yaml config file')
         else:
             sys.exit('ERROR: Could not read `{path}` config file. Reason: {reason}'.format(
                 path=error.filename,
@@ -168,15 +150,6 @@ def load_config_from_json(path):
     return content_as_json
 
 
-def load_config_from_url(url):
-    content = download_file(url)
-
-    if is_yaml(url):
-        return convert_str_to_yaml(content)
-    else:
-        return convert_str_to_json(content)
-
-
 def is_yaml(path):
     return path.endswith('.yaml')
 
@@ -191,7 +164,7 @@ def load_config_from_yaml(path):
     except IOError as error:
         if path == SKITZA_DEFAULT_CONFIG_YAML:
             sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
-                     '[OPTIONS]\n\nOptions:\n  --config   Path or URL to skitza *.json or *.yaml config file')
+                     '[OPTIONS]\n\nOptions:\n  --config   Path to skitza *.json or *.yaml config file')
         else:
             sys.exit('ERROR: Could not read `{path}` config file. Reason: {reason}'.format(
                 path=error.filename,
@@ -240,9 +213,7 @@ if __name__ == '__main__':
         config_path = option_value
 
     if config_path:
-        if is_url(config_path):
-            config_json = load_config_from_url(config_path)
-        elif is_json(config_path):
+        if is_json(config_path):
             config_json = load_config_from_json(config_path)
         elif is_yaml(config_path):
             config_json = load_config_from_yaml(config_path)
@@ -253,7 +224,7 @@ if __name__ == '__main__':
             config_json = load_config_from_yaml(SKITZA_DEFAULT_CONFIG_YAML)
         else:
             sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
-                     '[OPTIONS]\n\nOptions:\n  --config   Path or URL to skitza *.json or *.yaml config file')
+                     '[OPTIONS]\n\nOptions:\n  --config   Path to skitza *.json or *.yaml config file')
 
     register_commands(config_json)
     cli()
