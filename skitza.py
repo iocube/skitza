@@ -5,17 +5,11 @@ import jinja2
 import sys
 import yaml
 import jsonschema
+import constants
+
 
 import filters
 
-
-SKITZA_CONSTANTS = {
-    'cwd': os.getcwd(),
-    'env': os.environ
-}
-
-SKITZA_DEFAULT_CONFIG_JSON = 'skitza.json'
-SKITZA_DEFAULT_CONFIG_YAML = 'skitza.yaml'
 
 @click.group()
 def cli():
@@ -26,7 +20,7 @@ def command(config, com):
     def inner(*args, **kwargs):
         # kwargs contain arguments that were passed to the command
         kwargs['constants'] = config['constants']
-        kwargs['skitza'] = SKITZA_CONSTANTS
+        kwargs['skitza'] = constants.TEMPLATE_CONSTANTS
 
         for template in com['templates']:
             if 'directory' in template:
@@ -127,7 +121,7 @@ def load_config_from_json(path):
     try:
         f = open(path, 'r')
     except IOError as error:
-        if path == SKITZA_DEFAULT_CONFIG_JSON:
+        if path == constants.DEFAULT_CONFIG_PATH_JSON:
             sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
                      '[OPTIONS]\n\nOptions:\n  --config   Path to skitza *.json or *.yaml config file')
         else:
@@ -162,7 +156,7 @@ def load_config_from_yaml(path):
     try:
         f = open(path, 'r')
     except IOError as error:
-        if path == SKITZA_DEFAULT_CONFIG_YAML:
+        if path == constants.DEFAULT_CONFIG_PATH_YAML:
             sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
                      '[OPTIONS]\n\nOptions:\n  --config   Path to skitza *.json or *.yaml config file')
         else:
@@ -218,10 +212,10 @@ if __name__ == '__main__':
         elif is_yaml(config_path):
             config_json = load_config_from_yaml(config_path)
     else:
-        if os.path.exists(SKITZA_DEFAULT_CONFIG_JSON):
-            config_json = load_config_from_json(SKITZA_DEFAULT_CONFIG_JSON)
-        elif os.path.exists(SKITZA_DEFAULT_CONFIG_YAML):
-            config_json = load_config_from_yaml(SKITZA_DEFAULT_CONFIG_YAML)
+        if os.path.exists(constants.DEFAULT_CONFIG_PATH_JSON):
+            config_json = load_config_from_json(constants.DEFAULT_CONFIG_PATH_JSON)
+        elif os.path.exists(constants.DEFAULT_CONFIG_PATH_YAML):
+            config_json = load_config_from_yaml(constants.DEFAULT_CONFIG_PATH_YAML)
         else:
             sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
                      '[OPTIONS]\n\nOptions:\n  --config   Path to skitza *.json or *.yaml config file')
