@@ -7,7 +7,10 @@ import yaml
 import jsonschema
 import constants
 
-
+from loaders.loader import Config
+from loaders.exceptions import *
+from validators import jsonschema_validator, validator
+from validators.exceptions import *
 import filters
 
 
@@ -90,135 +93,39 @@ def get_value_from_option(opt):
         return splitted[0], splitted[1]
 
 
-def convert_str_to_json(data):
-    try:
-        jsonfied = json.loads(data)
-    except ValueError as error:
-        sys.exit('ERROR: Could not parse `{path}` config file. Reason: {reason}'.format(
-            path=config_path,
-            reason=error.message
-        ))
-
-    validate(jsonfied)
-
-    return jsonfied
-
-
-def convert_str_to_yaml(data):
-    try:
-        yamlfied = yaml.load(data)
-    except ValueError as error:
-        sys.exit('ERROR: Could not parse `{path}` config file. Reason: {reason}'.format(
-            path=config_path,
-            reason=error.message
-        ))
-
-    validate(yamlfied)
-
-    return yamlfied
-
-def load_config_from_json(path):
-    try:
-        f = open(path, 'r')
-    except IOError as error:
-        if path == constants.DEFAULT_CONFIG_PATH_JSON:
-            sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
-                     '[OPTIONS]\n\nOptions:\n  --config   Path to skitza *.json or *.yaml config file')
-        else:
-            sys.exit('ERROR: Could not read `{path}` config file. Reason: {reason}'.format(
-                path=error.filename,
-                reason=error.strerror
-            ))
-    try:
-        content_as_json = json.load(f)
-    except ValueError as error:
-        sys.exit('ERROR: Could not parse `{path}` config file. Reason: {reason}'.format(
-            path=path,
-            reason=error.message
-        ))
-    finally:
-        f.close()
-
-    validate(content_as_json)
-
-    return content_as_json
-
-
-def is_yaml(path):
-    return path.endswith('.yaml')
-
-
-def is_json(path):
-    return path.endswith('.json')
-
-
-def load_config_from_yaml(path):
-    try:
-        f = open(path, 'r')
-    except IOError as error:
-        if path == constants.DEFAULT_CONFIG_PATH_YAML:
-            sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
-                     '[OPTIONS]\n\nOptions:\n  --config   Path to skitza *.json or *.yaml config file')
-        else:
-            sys.exit('ERROR: Could not read `{path}` config file. Reason: {reason}'.format(
-                path=error.filename,
-                reason=error.strerror
-            ))
-
-    try:
-        content_as_yaml = yaml.load(f)
-    except ValueError as error:
-        sys.exit('ERROR: Could not parse `{path}` config file. Reason: {reason}'.format(
-            path=path,
-            reason=error.message
-        ))
-    finally:
-        f.close()
-
-    validate(content_as_yaml)
-
-    return content_as_yaml
-
-
-def load_schema():
-    f = open('schema.json', 'r')
-    try:
-        schema = json.load(f)
-    except ValueError as error:
-        sys.exit('ERROR: Could not parse schema.json. Reason: {reason}'.format(
-            reason=error.message
-        ))
-    finally:
-        f.close()
-
-    return schema
-
-def validate(content):
-    return jsonschema.validate(content, load_schema())
-
 if __name__ == '__main__':
     config_opt = get_option_from_argv(sys.argv, '--config=')
-
     config_path = None
+
     if config_opt:
         # remove config path from sys.argv so click module won't process it.
         sys.argv.remove(config_opt)
         (option_name, option_value) = get_value_from_option(config_opt)
         config_path = option_value
 
-    if config_path:
-        if is_json(config_path):
-            config_json = load_config_from_json(config_path)
-        elif is_yaml(config_path):
-            config_json = load_config_from_yaml(config_path)
-    else:
-        if os.path.exists(constants.DEFAULT_CONFIG_PATH_JSON):
-            config_json = load_config_from_json(constants.DEFAULT_CONFIG_PATH_JSON)
-        elif os.path.exists(constants.DEFAULT_CONFIG_PATH_YAML):
-            config_json = load_config_from_yaml(constants.DEFAULT_CONFIG_PATH_YAML)
-        else:
-            sys.exit('Unable to find local skitza.json and `--config` was not specified, aborting.\n\nUsage: skitza.py '
-                     '[OPTIONS]\n\nOptions:\n  --config   Path to skitza *.json or *.yaml config file')
+    try:
+        config = Config(config_path).load()
+    except ReadError as error:
+        sys.exit('ERROR: Could not read config file. Reason: {reason}'.format(reason=error.reason))
+    except ParseError as error:
+        sys.exit('ERROR: Could not parse config file. Reason: {reason}'.format(reason=error.reason))
+    except MissingConfigFileError:
+        sys.exit('ERROR: Unable to find config file, local skitza.json or skitza.yaml were not found too, aborting.'
+                 '\n\nUsage: skitza.py [OPTIONS]'
+                 '\n\nOptions:\n  --config   Path to skitza *.json or *.yaml config file')
+    except UnsupportedFileType:
+        sys.exit('ERROR: Unsupported file type')
 
-    register_commands(config_json)
+    try:
+        validator.validate(config, jsonschema_validator)
+    except ReadError as error:
+        sys.exit('ERROR: Could not parse schema.json. Reason: {reason}'.format(
+            reason=error.reason
+        ))
+    except ValidationError as error:
+        sys.exit('ERROR: Failed to validate config file. Reason: {reason}'.format(
+            reason=error.reason
+        ))
+
+    register_commands(config)
     cli()
