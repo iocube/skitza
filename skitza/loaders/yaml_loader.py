@@ -1,5 +1,6 @@
 import yaml
-from exceptions import *
+
+from skitza.loaders.exceptions import *
 
 
 class YAMLLoader(object):

@@ -1,5 +1,6 @@
 import json
-from exceptions import *
+
+from skitza.loaders.exceptions import *
 
 
 class JSONLoader(object):

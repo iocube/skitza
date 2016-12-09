@@ -1,11 +1,11 @@
-import click
 import sys
+import click
 
-import command
-from loaders.loader import Config
-from loaders.exceptions import *
-from validators import jsonschema_validator, validator
-from validators.exceptions import *
+from skitza import command
+from skitza.loaders.exceptions import *
+from skitza.loaders.loader import Config
+from skitza.validators import jsonschema_validator, validator
+from skitza.validators.exceptions import *
 
 
 @click.group()
@@ -52,7 +52,7 @@ def get_value_from_option(opt):
         return splitted[0], splitted[1]
 
 
-if __name__ == '__main__':
+def main():
     config_opt = get_option_from_argv(sys.argv, '--config=')
     config_path = None
 

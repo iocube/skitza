@@ -1,8 +1,7 @@
 import os
 import jinja2
 
-import constants
-import template_filters
+from skitza import constants, template_filters
 
 
 class TemplateIsMissingError(Exception):

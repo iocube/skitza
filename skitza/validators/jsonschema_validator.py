@@ -1,11 +1,13 @@
 import json
+import os
 import jsonschema
 
-from validators.exceptions import ReadError, ValidationError
+from skitza.validators.exceptions import ReadError, ValidationError
 
 
 def validate(content):
-    f = open('schema.json', 'r')
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    f = open(os.path.join(base_dir, 'schema.json'), 'r')
     try:
         schema = json.load(f)
     except ValueError as error:

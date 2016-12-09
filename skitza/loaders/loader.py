@@ -1,8 +1,8 @@
 import os
 
-import constants
-from loaders.exceptions import UnsupportedFileType, MissingConfigFileError
+from skitza.loaders.exceptions import UnsupportedFileType, MissingConfigFileError
 from json_loader import *
+from skitza import constants
 from yaml_loader import *
 
 
