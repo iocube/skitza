@@ -17,22 +17,21 @@ class Config(object):
             JSONLoader,
             YAMLLoader
         ]
-        self.is_path_exists = os.path.exists(self.path)
 
     def load(self):
-        path = None
+        path_to_config = None
         if not self.path:
             existent_paths = filter(lambda p: os.path.exists(p), self.path_fallback_list)
             if existent_paths:
-                path = existent_paths[0]
+                path_to_config = existent_paths[0]
             else:
                 raise MissingConfigFileError()
 
-        if not self.is_path_exists:
+        if not os.path.exists(path_to_config):
             raise MissingConfigFileError()
 
         for loader in self.loaders:
-            if loader.is_supported_file_type(path):
-                return loader.load(path)
+            if loader.is_supported_file_type(path_to_config):
+                return loader.load(path_to_config)
 
         raise UnsupportedFileType()

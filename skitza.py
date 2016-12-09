@@ -1,17 +1,11 @@
-import os
-import json
 import click
-import jinja2
 import sys
-import yaml
-import jsonschema
-import constants
 
+import command
 from loaders.loader import Config
 from loaders.exceptions import *
 from validators import jsonschema_validator, validator
 from validators.exceptions import *
-import filters
 
 
 @click.group()
@@ -19,63 +13,28 @@ def cli():
     pass
 
 
-def command(config, com):
-    def inner(*args, **kwargs):
-        # kwargs contain arguments that were passed to the command
-        kwargs['constants'] = config['constants']
-        kwargs['skitza'] = constants.TEMPLATE_CONSTANTS
+def register_cli_commands(config):
+    registered_commands = []
 
-        for template in com['templates']:
-            if 'directory' in template:
-                create_directory(template['directory'], kwargs)
-            else:
-                write(template['source'], template['destination'], kwargs)
+    # iterate over each command
+    for idx, cmd in enumerate(config['commands']):
+        registered_commands.append(command.attach_behavior_to_command(config, cmd))
 
-    return inner
-
-
-def register_commands(config):
-    commands = []
-    for idx, com in enumerate(config['commands']):
-        commands.append(command(config, com)) # commands stores `command` functions
-        for arg in com['arguments']:
-            commands[idx] = click.option('--{option}'.format(option=arg['name']), help=arg['help'])(
-                commands[idx]
+        # iterate over each argument that this command can accept
+        for arg in cmd['arguments']:
+            registered_commands[idx] = click.option('--{option}'.format(option=arg['name']), help=arg['help'])(
+                registered_commands[idx]
             )
 
-        help = com.get('help', '')
-        short_help = com.get('short_help', '')
+        description = cmd.get('help', '')
+        short_help = cmd.get('short_help', '')
 
+        # after all arguments are attached to the command, add it.
         cli.add_command(
-            click.command(name=com['command'], help=help, short_help=short_help)(
-                commands[idx]
+            click.command(name=cmd['command'], help=description, short_help=short_help)(
+                registered_commands[idx]
             )
         )
-
-
-def write(source, destination, context):
-    splitted = source.split('/')
-    template_dir = '/'.join(splitted[0:-1])
-
-    jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
-    jinja_env.filters.update(filters.filters)
-
-    file_name_template = jinja_env.from_string(splitted[len(splitted)-1]).render(context)
-    destination_template = jinja_env.from_string(destination).render(context)
-
-    jinja_env.get_template(file_name_template).stream(**context).dump(destination_template)
-
-    click.echo('{template}: {destination}'.format(
-        template=file_name_template,
-        destination=destination_template)
-    )
-
-
-def create_directory(path, options):
-    rendered_path = jinja2.Template(path).render(options)
-
-    if not os.path.exists(rendered_path):
-        os.makedirs(rendered_path)
 
 
 def get_option_from_argv(argv, name):
@@ -127,5 +86,9 @@ if __name__ == '__main__':
             reason=error.reason
         ))
 
-    register_commands(config)
-    cli()
+    register_cli_commands(config)
+
+    try:
+        cli()
+    except command.TemplateIsMissingError as error:
+        sys.exit('ERROR: {reason}'.format(reason=error.reason))
