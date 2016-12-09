@@ -27,6 +27,9 @@ setup(
     ],
     keywords='code generation utility',
     packages=find_packages(),
+    package_data={
+        'skitza': ['schema.json'],
+    },
     install_requires=[
         'click',
         'functools32',
