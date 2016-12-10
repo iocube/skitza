@@ -25,12 +25,14 @@ def attach_behavior_to_command(config, command):
 
 
 def render_template_to_destination(source_path, destination_path, context):
+    jinja_env = jinja2.Environment()
+    jinja_env.filters.update(template_filters.filters)
+
+    source_path = jinja_env.from_string(source_path).render(context)
     source_template_location = extract_template_directory_from_path(source_path)
     source_file_name = extract_file_name_from_path(source_path)
 
-    # load filters
-    jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(source_template_location))
-    jinja_env.filters.update(template_filters.filters)
+    jinja_env.loader = jinja2.FileSystemLoader(source_template_location)
 
     destination_path = jinja_env.from_string(destination_path).render(context)
 
