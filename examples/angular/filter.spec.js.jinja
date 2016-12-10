@@ -1,0 +1,19 @@
+describe('{{name|first_lower}}Filter', function() {
+    var $filter;
+
+    beforeEach(function() {
+        module('{{constants.module}}')
+    });
+
+    beforeEach(inject(function(_$filter_) {
+        $filter = _$filter_;
+    }));
+
+    it('should ', function() {
+        var input = 'abc';
+        var output = $filter('{{name|first_lower}}')(input);
+
+        expect(output).toEqual();
+    });
+});
+

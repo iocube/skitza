@@ -1,4 +1,4 @@
-describe('{{name}}Controller', function() {
+describe('{{name|first_upper}}Controller', function() {
     var $scope, $controller, ctrl;
 
     beforeEach(function() {
@@ -8,12 +8,11 @@ describe('{{name}}Controller', function() {
     beforeEach(inject(function(_$controller_, $rootScope) {
         $controller = _$controller_;
         $scope = $rootScope.$new();
-        ctrl = $controller('{{name}}Controller as {{name}}Ctrl', {$scope: scope});
+        ctrl = $controller('{{name|first_upper}}Controller as {{name|first_upper}}Ctrl', {$scope: scope});
     }));
 
     describe('method', function() {
-        it('should ', function() {
-
-        });
+        it('should ', function() {});
     });
 });
+

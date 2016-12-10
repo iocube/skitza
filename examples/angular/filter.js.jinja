@@ -1,4 +1,15 @@
-angular.module('{{constants.module}}')
-  .filter('{{name|lower}}', function() {
-      return function() {}
-  })
+(function() {
+    'use strict';
+
+    angular
+        .module('{{constants.module}}')
+        .filter('{{name|first_lower}}', {{name|first_lower}});
+
+    function {{name|first_lower}}() {
+        return {{name|first_lower}}Filter;
+
+        function {{name|first_lower}}Filter(input) {
+            return input;
+        }
+    }
+})();

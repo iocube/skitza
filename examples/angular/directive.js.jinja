@@ -1,12 +1,29 @@
-angular.module('{{constants.module}}').
-  directive('{{name}}', function() {
-    return {
-      restrict: 'E',
-      templateUrl: '/{{constants.module}}/src/templates/{{name}}',
-      controller: '{{name|capitalize}}Controller',
-      controllerAs: '{{name}}Ctrl',
-      bindToController: true,
-      scope: {},
-      link: function(scope, element, attrs) {}
+(function() {
+    'use strict';
+
+    angular
+        .module('{{constants.module}}')
+        .directive('{{name|first_lower}}', {{name|first_lower}});
+
+    function {{name|first_lower}}() {
+        var directive = {
+            restrict: 'EA',
+            templateUrl: '',
+            scope: {},
+            link: linkFunc,
+            controller: {{name|first_upper}}Controller,
+            controllerAs: 'vm',
+            bindToController: true
+        };
+
+        return directive;
+
+        function linkFunc(scope, el, attr, ctrl) {}
     }
-});
+
+    {{name|first_upper}}Controller.$inject = [];
+
+    function {{name|first_upper}}Controller() {
+        var vm = this;
+    }
+})();

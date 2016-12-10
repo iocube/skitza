@@ -5,39 +5,73 @@
   "commands": [
     {
       "command": "controller",
-      "help": "Generate new controller from template",
+      "help": "Generate new controller",
       "short_help": "new controller",
       "arguments": [
-        {"name": "name", "help": "controller name"},
-        {"name": "description", "help": "controller description"}
+        {"name": "name", "help": "controller name"}
       ],
       "templates": [
         {
-          "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
-          "destination": "/home/vova/src/skitza/examples/angular/{{name|first_upper}}ControllerCode.js"
+          "source": "{{skitza.cwd}}/controller.js.jinja",
+          "destination": "{{skitza.cwd}}/{{name|first_upper}}.controller.js"
         },
         {
-          "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
-          "destination": "/home/vova/src/skitza/examples/angular/{{name}}ControllerSpec.js"
+          "source": "{{skitza.cwd}}/controller.spec.js.jinja",
+          "destination": "{{skitza.cwd}}/{{name|first_upper}}.controller.spec.js"
         }
       ]
     },
     {
-      "command": "state",
+      "command": "directive",
+      "help": "Generate new directive",
+      "short_help": "new directive",
       "arguments": [
-        {"name": "name", "help": "state name"}
+        {"name": "name", "help": "directive name"}
       ],
       "templates": [
         {
-          "directory": "{{skitza.cwd}}/state/{{name}}"
+          "source": "{{skitza.cwd}}/directive.js.jinja",
+          "destination": "{{skitza.cwd}}/{{name|first_lower}}.directive.js"
         },
         {
-          "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
-          "destination": "{{skitza.env.PWD}}/state/{{name}}/{{name}}Controller.js"
+          "source": "{{skitza.cwd}}/controller.spec.js.jinja",
+          "destination": "{{skitza.cwd}}/{{name|first_upper}}.controller.spec.js"
+        }
+      ]
+    },
+    {
+      "command": "service",
+      "help": "Generate new service",
+      "short_help": "new service",
+      "arguments": [
+        {"name": "name", "help": "service name"}
+      ],
+      "templates": [
+        {
+          "source": "{{skitza.cwd}}/factory.js.jinja",
+          "destination": "{{skitza.cwd}}/{{name|first_lower}}.service.js"
         },
         {
-          "source": "/home/vova/src/skitza/examples/angular/controller.js.jinja",
-          "destination": "/home/vova/src/skitza/examples/angular/state/{{name}}/{{name}}ControllerSpec.js"
+          "source": "{{skitza.cwd}}/factory.spec.js.jinja",
+          "destination": "{{skitza.cwd}}/{{name|first_lower}}.service.spec.js"
+        }
+      ]
+    },
+    {
+      "command": "filter",
+      "help": "Generate new filter",
+      "short_help": "new filter",
+      "arguments": [
+        {"name": "name", "help": "filter name"}
+      ],
+      "templates": [
+        {
+          "source": "{{skitza.cwd}}/filter.js.jinja",
+          "destination": "{{skitza.cwd}}/{{name|first_lower}}.filter.js"
+        },
+        {
+          "source": "{{skitza.cwd}}/filter.spec.js.jinja",
+          "destination": "{{skitza.cwd}}/{{name|first_lower}}.filter.spec.js"
         }
       ]
     }

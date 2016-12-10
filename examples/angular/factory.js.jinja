@@ -1,0 +1,19 @@
+(function() {
+    'use strict';
+
+    angular
+        .module('{{constants.module}}')
+        .factory('{{name|first_lower}}Service', {{name|first_lower}}Service);
+
+    {{name|first_lower}}Service.$inject = [];
+
+    function {{name|first_lower}}Service() {
+        var service = {
+            doSomething: doSomething
+        };
+
+        return service;
+
+        function doSomething() {}
+    }
+})();

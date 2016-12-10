@@ -1,6 +1,13 @@
 (function() {
-  function {{name|capitalize}}Controller() {}
+    'use strict';
 
-  angular.module('{{constants.module}}')
-    .controller('{{name|first_upper}}Controller', {{name|capitalize}}Controller);
+    angular
+        .module('{{constants.module}}')
+        .controller('{{name|first_upper}}Controller', {{name|first_upper}}Controller);
+
+    {{name|first_upper}}Controller.$inject = [];
+
+    function {{name|first_upper}}Controller() {
+        var vm = this;
+    }
 })();
