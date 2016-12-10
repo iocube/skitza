@@ -1,7 +1,7 @@
 import sys
 import click
 
-from skitza import command
+from skitza import command, __version__
 from skitza.loaders.exceptions import *
 from skitza.loaders.loader import Config
 from skitza.validators import jsonschema_validator, validator
@@ -9,6 +9,7 @@ from skitza.validators.exceptions import *
 
 
 @click.group()
+@click.version_option(version=__version__)
 def cli():
     pass
 
@@ -70,8 +71,8 @@ def main():
         sys.exit('ERROR: Could not parse config file. Reason: {reason}'.format(reason=error.reason))
     except MissingConfigFileError:
         sys.exit('ERROR: Unable to find config file, local skitza.json or skitza.yaml were not found too, aborting.'
-                 '\n\nUsage: skitza.py [OPTIONS]'
-                 '\n\nOptions:\n  --config   Path to skitza *.json or *.yaml config file')
+                 '\n\nVersion: {version}\nUsage: skitza.py [OPTIONS]'
+                 '\n\nOptions:\n  --config   Path to skitza *.json or *.yaml config file'.format(version=__version__))
     except UnsupportedFileType:
         sys.exit('ERROR: Unsupported file type')
 

@@ -2,6 +2,8 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
+from skitza import __version__
+
 here = path.abspath(path.dirname(__file__))
 
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
@@ -9,7 +11,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='skitza',
-    version='0.0.0',
+    version=__version__,
     description='project description',
     long_description=long_description,
     url='https://github.com/iocube/skitza',
