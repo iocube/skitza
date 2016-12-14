@@ -36,6 +36,10 @@ def render_template_to_destination(source_path, destination_path, context):
 
     destination_path = jinja_env.from_string(destination_path).render(context)
 
+    if os.path.exists(destination_path):
+        print 'File already exists: {destination}, skipping.'.format(destination=destination_path)
+        return
+
     try:
         jinja_env.get_template(source_file_name).stream(**context).dump(destination_path)
     except jinja2.exceptions.TemplateNotFound:
